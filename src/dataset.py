@@ -92,15 +92,40 @@ class CamVidDataset(Dataset):
         self.img_size = img_size
         self.num_classes = len(self.CLASS_NAMES)
         
-        # Paths
-        self.img_dir = os.path.join(root_dir, split, 'images')
-        self.label_dir = os.path.join(root_dir, split, 'labels')
+        # Paths - handle both directory structures
+        # Structure 1: data/CamVid/train/, data/CamVid/trainannot/
+        # Structure 2: data/CamVid/train/images/, data/CamVid/train/labels/
+        
+        possible_img_dirs = [
+            os.path.join(root_dir, split),  # data/CamVid/train/
+            os.path.join(root_dir, split, 'images'),  # data/CamVid/train/images/
+        ]
+        
+        possible_label_dirs = [
+            os.path.join(root_dir, f"{split}annot"),  # data/CamVid/trainannot/
+            os.path.join(root_dir, split, 'labels'),  # data/CamVid/train/labels/
+        ]
+        
+        # Find which structure exists
+        self.img_dir = None
+        self.label_dir = None
+        
+        for img_dir in possible_img_dirs:
+            if os.path.exists(img_dir):
+                self.img_dir = img_dir
+                break
+        
+        for label_dir in possible_label_dirs:
+            if os.path.exists(label_dir):
+                self.label_dir = label_dir
+                break
         
         # Get image files
-        if os.path.exists(self.img_dir):
+        if self.img_dir and os.path.exists(self.img_dir):
             self.img_files = sorted([f for f in os.listdir(self.img_dir) 
                                     if f.endswith(('.png', '.jpg', '.jpeg'))])
         else:
+            print(f"Warning: Image directory not found in {root_dir}")
             self.img_files = []
     
     def __len__(self):
