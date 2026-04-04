@@ -205,13 +205,6 @@ class SegmentationTransform:
                 image = F.vflip(image)
                 mask = F.vflip(mask)
             
-            # Random rotation - use nearest-neighbor for masks to preserve class indices
-            if random.random() > 0.5:
-                angle = random.randint(-10, 10)
-                image = F.rotate(image, angle, interpolation=InterpolationMode.BILINEAR)
-                # Use NEAREST for masks to preserve categorical labels
-                mask = F.rotate(mask, angle, interpolation=InterpolationMode.NEAREST)
-            
             # Random brightness/contrast (image only, not mask)
             if random.random() > 0.5:
                 brightness_factor = random.uniform(0.8, 1.2)
