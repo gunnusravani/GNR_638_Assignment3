@@ -3,6 +3,7 @@ Training script for SegNet
 """
 
 import os
+import sys
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -11,6 +12,10 @@ from tqdm import tqdm
 import time
 import json
 from datetime import datetime
+from pathlib import Path
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.segnet_model import SegNet, count_parameters
 from src.dataset import ToySegmentationDataset, CamVidDataset, SegmentationTransform, create_dataloader
