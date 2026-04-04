@@ -214,8 +214,17 @@ def main():
     
     # Save results
     os.makedirs('./results', exist_ok=True)
+    
+    # Convert numpy arrays to lists for JSON serialization
+    metrics_serializable = {}
+    for key, value in metrics.items():
+        if isinstance(value, np.ndarray):
+            metrics_serializable[key] = value.tolist()
+        else:
+            metrics_serializable[key] = value
+    
     with open('./results/evaluation_results.json', 'w') as f:
-        json.dump(metrics, f, indent=4)
+        json.dump(metrics_serializable, f, indent=4)
     
     print(f"\nResults saved to ./results/evaluation_results.json")
 
