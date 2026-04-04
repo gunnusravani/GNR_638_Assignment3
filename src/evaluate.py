@@ -63,17 +63,16 @@ class SegNetEvaluator:
         return prediction.cpu()
     
     def predict_batch(self, loader):
-        """Predict on batch of images"""
+        """Predict on batch of images, returning raw logits"""
         predictions = []
         targets = []
         
         with torch.no_grad():
             for images, labels in tqdm(loader, desc="Predicting"):
                 images = images.to(self.device)
-                outputs = self.model(images)
-                preds = torch.argmax(outputs, dim=1)
+                outputs = self.model(images)  # (B, C, H, W) - raw logits
                 
-                predictions.append(preds.cpu())
+                predictions.append(outputs.cpu())
                 targets.append(labels.cpu())
         
         predictions = torch.cat(predictions, dim=0)
@@ -83,16 +82,13 @@ class SegNetEvaluator:
     
     def evaluate(self, loader, class_names=None):
         """Evaluate on test set"""
-        predictions, targets = self.predict_batch(loader)
+        logits, targets = self.predict_batch(loader)
         
         # Compute metrics
         metrics = SegmentationMetrics(num_classes=self.num_classes)
         
-        # Create logits format for update function
-        for pred, target in zip(predictions, targets):
-            pred_one_hot = torch.zeros(self.num_classes, pred.shape[0], pred.shape[1])
-            pred_one_hot.scatter_(0, pred.unsqueeze(0), 1)
-            metrics.update(pred_one_hot, target)
+        # Pass raw logits to metrics (they handle argmax internally)
+        metrics.update(logits, targets)
         
         # Print metrics
         metrics.print_metrics(class_names=class_names)
