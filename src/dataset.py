@@ -172,22 +172,22 @@ class CamVidDataset(Dataset):
     
     @staticmethod
     def _rgb_to_class(label_img):
-        """Convert RGB label image to class indices using nearest-neighbor color matching"""
-        label_array = np.array(label_img, dtype=np.int32)
+        """Convert RGB label image to class indices with better tolerance for compression"""
+        label_array = np.array(label_img, dtype=np.float32)
         h, w = label_array.shape[:2]
         
         # Reshape to (H*W, 3)
         pixels = label_array.reshape(-1, 3)
         
-        # Get color list from CLASS_COLORS
+        # Get color list
         colors_list = np.array([CamVidDataset.CLASS_COLORS[i] for i in range(11)], 
-                              dtype=np.int32)
+                              dtype=np.float32)
         
-        # Compute distances (H*W, 11)
-        # distances[i, j] = ||pixels[i] - colors_list[j]||^2
-        distances = np.zeros((pixels.shape[0], len(colors_list)), dtype=np.float32)
-        for c_idx, color in enumerate(colors_list):
-            distances[:, c_idx] = np.sum((pixels - color) ** 2, axis=1)
+        # Use scipy for efficient distance computation
+        from scipy.spatial.distance import cdist
+        
+        # Compute Euclidean distances: (H*W, 11)
+        distances = cdist(pixels, colors_list, metric='euclidean')
         
         # Find nearest class for each pixel
         class_map = np.argmin(distances, axis=1).astype(np.uint8)
