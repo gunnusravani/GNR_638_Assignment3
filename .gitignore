@@ -1,0 +1,112 @@
+# Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Testing
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+.mypy_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Data and Models
+data/CamVid/
+data/processed/
+models/custom_segnet/checkpoint_*.pt
+models/official_segnet/checkpoint_*.pt
+*.pth
+*.pt
+*.h5
+*.pkl
+*.pickle
+
+# Results and Logs
+results/predictions/
+results/metrics/*.json
+results/comparison/
+logs/
+runs/
+*.log
+training.log
+*.csv
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+*.bak
+*.swp
+
+# OS specific
+.DS_Store
+Thumbs.db
+.directory
+
+# Large files (if any)
+*.zip
+*.tar
+*.tar.gz
+*.rar
+
+# IDE
+.vscode/settings.json
+.vscode/launch.json
+
+# TensorBoard
+runs/
+tb_logs/
+
+# Miscellaneous
+.cache/
+*.orig
+.mypy.ini
+setup.cfg
