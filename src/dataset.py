@@ -140,8 +140,8 @@ class CamVidDataset(Dataset):
         image = Image.open(img_path).convert('RGB')
         
         # Load label (convert RGB label image to class index)
-        label_name = img_name.replace('.png', '_L.png')
-        label_path = os.path.join(self.label_dir, label_name)
+        # CamVid label filenames match image names (in separate annot directory)
+        label_path = os.path.join(self.label_dir, img_name)
         
         if os.path.exists(label_path):
             label_img = Image.open(label_path).convert('RGB')
@@ -172,18 +172,27 @@ class CamVidDataset(Dataset):
     
     @staticmethod
     def _rgb_to_class(label_img):
-        """Convert RGB label image to class indices"""
-        label_array = np.array(label_img)
-        class_map = np.zeros((label_array.shape[0], label_array.shape[1]), dtype=np.uint8)
+        """Convert RGB label image to class indices using nearest-neighbor color matching"""
+        label_array = np.array(label_img, dtype=np.int32)
+        h, w = label_array.shape[:2]
         
-        # Map RGB colors to class indices
-        colors_list = list(CamVidDataset.CLASS_COLORS.values())
-        for class_idx, color in enumerate(colors_list):
-            # Find pixels matching this color
-            mask = np.all(label_array == color, axis=2)
-            class_map[mask] = class_idx
+        # Reshape to (H*W, 3)
+        pixels = label_array.reshape(-1, 3)
         
-        return class_map
+        # Get color list from CLASS_COLORS
+        colors_list = np.array([CamVidDataset.CLASS_COLORS[i] for i in range(11)], 
+                              dtype=np.int32)
+        
+        # Compute distances (H*W, 11)
+        # distances[i, j] = ||pixels[i] - colors_list[j]||^2
+        distances = np.zeros((pixels.shape[0], len(colors_list)), dtype=np.float32)
+        for c_idx, color in enumerate(colors_list):
+            distances[:, c_idx] = np.sum((pixels - color) ** 2, axis=1)
+        
+        # Find nearest class for each pixel
+        class_map = np.argmin(distances, axis=1).astype(np.uint8)
+        
+        return class_map.reshape(h, w)
 
 
 class SegmentationTransform:
