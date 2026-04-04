@@ -10,6 +10,7 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 import torchvision.transforms as transforms
 from torchvision.transforms import functional as F
+from torchvision.transforms.functional import InterpolationMode
 import random
 
 
@@ -204,13 +205,14 @@ class SegmentationTransform:
                 image = F.vflip(image)
                 mask = F.vflip(mask)
             
-            # Random rotation
+            # Random rotation - use nearest-neighbor for masks to preserve class indices
             if random.random() > 0.5:
                 angle = random.randint(-10, 10)
-                image = F.rotate(image, angle)
-                mask = F.rotate(mask, angle)
+                image = F.rotate(image, angle, interpolation=InterpolationMode.BILINEAR)
+                # Use NEAREST for masks to preserve categorical labels
+                mask = F.rotate(mask, angle, interpolation=InterpolationMode.NEAREST)
             
-            # Random brightness/contrast
+            # Random brightness/contrast (image only, not mask)
             if random.random() > 0.5:
                 brightness_factor = random.uniform(0.8, 1.2)
                 image = F.adjust_brightness(image, brightness_factor)
