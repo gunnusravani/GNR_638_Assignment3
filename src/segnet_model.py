@@ -75,36 +75,42 @@ class SegNetEncoder(nn.Module):
                 nn.init.constant_(m.bias, 0)
     
     def forward(self, x):
-        # Store feature maps and pooling indices for decoder
+        # Store feature maps, pooling indices, and shapes for decoder
         features = {}
         indices = []
+        sizes = []
         
         # Block 1: 360x480 -> 180x240
+        sizes.append(x.size())
         x, pool_idx = self.block1(x)
         indices.append(pool_idx)
         features['pool1'] = x
         
         # Block 2: 180x240 -> 90x120
+        sizes.append(x.size())
         x, pool_idx = self.block2(x)
         indices.append(pool_idx)
         features['pool2'] = x
         
         # Block 3: 90x120 -> 45x60
+        sizes.append(x.size())
         x, pool_idx = self.block3(x)
         indices.append(pool_idx)
         features['pool3'] = x
         
         # Block 4: 45x60 -> 22x30
+        sizes.append(x.size())
         x, pool_idx = self.block4(x)
         indices.append(pool_idx)
         features['pool4'] = x
         
         # Block 5: 22x30 -> 11x15
+        sizes.append(x.size())
         x, pool_idx = self.block5(x)
         indices.append(pool_idx)
         features['pool5'] = x
         
-        return x, features, indices
+        return x, features, indices, sizes
 
 
 class SegNetDecoder(nn.Module):
@@ -141,35 +147,36 @@ class SegNetDecoder(nn.Module):
         self.block1_2 = ConvBlock(64, num_classes)
         self.unpool1 = nn.MaxUnpool2d(kernel_size=2, stride=2)
     
-    def forward(self, x, indices):
+    def forward(self, x, indices, sizes):
         # indices is a list: [pool1_idx, pool2_idx, pool3_idx, pool4_idx, pool5_idx]
+        # sizes is a list of feature map sizes before each pooling
         # We process in reverse order
         
         # Block 5 decoder (unpool 5, then 3 convs)
-        x = self.unpool5(x, indices[4])  # indices[4] is pool5
+        x = self.unpool5(x, indices[4], output_size=sizes[4])  # back to pool4 size
         x = self.block5_1(x)
         x = self.block5_2(x)
         x = self.block5_3(x)
         
         # Block 4 decoder (unpool 4, then 3 convs)
-        x = self.unpool4(x, indices[3])  # indices[3] is pool4
+        x = self.unpool4(x, indices[3], output_size=sizes[3])  # back to pool3 size
         x = self.block4_1(x)
         x = self.block4_2(x)
         x = self.block4_3(x)
         
         # Block 3 decoder (unpool 3, then 3 convs)
-        x = self.unpool3(x, indices[2])  # indices[2] is pool3
+        x = self.unpool3(x, indices[2], output_size=sizes[2])  # back to pool2 size
         x = self.block3_1(x)
         x = self.block3_2(x)
         x = self.block3_3(x)
         
         # Block 2 decoder (unpool 2, then 2 convs)
-        x = self.unpool2(x, indices[1])  # indices[1] is pool2
+        x = self.unpool2(x, indices[1], output_size=sizes[1])  # back to pool1 size
         x = self.block2_1(x)
         x = self.block2_2(x)
         
         # Block 1 decoder (unpool 1, then 2 convs)
-        x = self.unpool1(x, indices[0])  # indices[0] is pool1
+        x = self.unpool1(x, indices[0], output_size=sizes[0])  # back to input size
         x = self.block1_1(x)
         x = self.block1_2(x)
         
@@ -189,20 +196,20 @@ class SegNet(nn.Module):
         input_shape = x.shape
         
         # Encoder
-        x, features, indices = self.encoder(x)
+        x, features, indices, sizes = self.encoder(x)
         
         # Decoder
-        x = self.decoder(x, indices)
+        x = self.decoder(x, indices, sizes)
         
         return x
     
     def forward_with_features(self, x):
         """Forward pass that also returns intermediate features (useful for analysis)"""
         # Encoder
-        x, features, indices = self.encoder(x)
+        x, features, indices, sizes = self.encoder(x)
         
         # Decoder
-        x = self.decoder(x, indices)
+        x = self.decoder(x, indices, sizes)
         
         return x, features
 
