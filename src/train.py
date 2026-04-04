@@ -27,7 +27,9 @@ class SegNetTrainer:
     
     def __init__(self, config):
         self.config = config
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        # Use device specified in config, or auto-detect
+        device_str = config.get('device', 'cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device(device_str)
         print(f"Using device: {self.device}")
         
         # Create directories
@@ -54,7 +56,7 @@ class SegNetTrainer:
         
         # Learning rate scheduler
         self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-            self.optimizer, mode='max', factor=0.5, patience=5, verbose=True
+            self.optimizer, mode='max', factor=0.5, patience=5
         )
         
         # Metrics
@@ -285,6 +287,7 @@ def main():
         'checkpoint_dir': args.checkpoint_dir,
         'log_dir': args.log_dir,
         'save_freq': args.save_freq,
+        'device': args.device,
     }
     
     # Initialize trainer
