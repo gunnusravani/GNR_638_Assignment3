@@ -56,7 +56,7 @@ GNR_638_Assignment3/
 
 ```bash
 # Navigate to project directory
-cd /Users/sravani/Documents/VSCode_projects/GNR_638_Assignment3
+cd GNR_638_Assignment3
 
 # Create virtual environment
 python3 -m venv .venv
@@ -224,39 +224,7 @@ python generate_plots.py
 # Open report/assignment_report_v2.tex in LaTeX editor (or PDF if compiled)
 ```
 
----
 
-## Troubleshooting
-
-### Issue: "CUDA out of memory"
-**Solution:**
-- Reduce batch size: `--batch_size 2`
-- Use CPU: `--device cpu`
-- Reduce image resolution in `src/dataset.py`
-
-### Issue: "No module named 'torch'"
-**Solution:**
-```bash
-pip install torch torchvision torchaudio
-```
-
-### Issue: "CamVid dataset not found"
-**Solution:**
-- Ensure dataset is in `data/CamVid/` directory
-- Check directory structure matches the format above
-- Run: `ls -la data/CamVid/train/ | head` to verify
-
-### Issue: "Model checkpoint not found"
-**Solution:**
-- Ensure training completed successfully
-- Check checkpoint path: `ls -la models/custom_segnet_v2/`
-
-### Issue: "Class index 11 exceeding num_classes=11"
-**Solution:**
-- This fix is already applied in current code
-- Ensure you're using the latest version from this repository
-
----
 
 ## Model Architecture
 
@@ -452,42 +420,5 @@ If you use this code in your research, please cite the original SegNet paper:
 }
 ```
 
----
 
-## FAQ
 
-**Q: Can I train on CPU?**  
-A: Yes, use `--device cpu`. Training will be ~5-10x slower.
-
-**Q: How long does training take?**  
-A: ~40 minutes on GPU (NVIDIA RTX), ~4 hours on CPU.
-
-**Q: Why is test accuracy lower than validation accuracy?**  
-A: Test set may have different distribution or use different labels. This is expected behavior.
-
-**Q: What batch size should I use?**  
-A: Batch size 4 is recommended. Use smaller (2, 1) on GPUs with limited memory.
-
-**Q: How do I use a pre-trained model?**  
-A: Load checkpoint: `torch.load('models/custom_segnet_v2/best_model.pth')`
-
----
-
-## License & Disclaimer
-
-This is an educational implementation for GNR 638 Assignment 3. The CamVid dataset has its own licensing terms.
-
-**Disclaimer:** Results may vary depending on:
-- GPU/CPU hardware differences
-- Random seed initialization
-- PyTorch version differences
-- Preprocessing variations
-
----
-
-## Support
-
-For questions or issues:
-1. Check the README sections above
-2. Review code comments in `src/` directory
-3. Consult `report/assignment_report_v2.pdf` for detailed technical discussion
