@@ -41,4 +41,4 @@ for split in splits:
             color = tuple(unique_colors[idx])
             count = counts[idx]
             pct = 100 * count / img_array.size
-            print(f"  {i+1}. RGB{color:30s} - {count:7d} pixels ({pct:5.2f}%)")
+            print(f"  {i+1}. RGB{str(color):30s} - {count:7d} pixels ({pct:5.2f}%)")
