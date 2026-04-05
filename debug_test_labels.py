@@ -4,8 +4,8 @@ import numpy as np
 import os
 
 # Check a validation label
-val_label = 'SegNet-Tutorial/CamVid/valannot/0001TP_001411.png'
-test_label = 'SegNet-Tutorial/CamVid/testannot/0001CF100_000051.png'
+val_label = 'data/CamVid/valannot/0016E5_07959.png'
+test_label = 'data/CamVid/testannot/0001TP_008670.png'
 
 print('=' * 60)
 print('VALIDATION LABEL')
