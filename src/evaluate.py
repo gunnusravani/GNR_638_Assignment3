@@ -17,7 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.segnet_model import SegNet
-from src.dataset import CamVidDataset, ToySegmentationDataset, create_dataloader
+from src.dataset import CamVidDataset, ToySegmentationDataset, SegmentationTransform, create_dataloader
 from src.utils import SegmentationMetrics
 
 
@@ -206,7 +206,9 @@ def main():
     if args.dataset == 'toy':
         dataset = ToySegmentationDataset(num_samples=20, num_classes=args.num_classes, split=args.split)
     else:
-        dataset = CamVidDataset('data/CamVid', split=args.split)
+        # Create normalization transform (no augmentation during evaluation)
+        eval_transform = SegmentationTransform(img_size=(360, 480), augment=False)
+        dataset = CamVidDataset('data/CamVid', split=args.split, transform=eval_transform)
     
     loader = create_dataloader(dataset, batch_size=args.batch_size, shuffle=False)
     
