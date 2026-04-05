@@ -255,7 +255,7 @@ def main():
                        help='SGD momentum')
     parser.add_argument('--weight_decay', type=float, default=5e-4,
                        help='Weight decay')
-    parser.add_argument('--dataset_path', type=str, default='data/CamVid/',
+    parser.add_argument('--dataset_path', type=str, default='SegNet-Tutorial/CamVid/',
                        help='Path to dataset')
     parser.add_argument('--checkpoint_dir', type=str, default='models/custom_segnet/',
                        help='Checkpoint directory')

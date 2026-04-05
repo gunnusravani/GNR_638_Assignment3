@@ -155,6 +155,10 @@ class CamVidDataset(Dataset):
         label = Image.fromarray(label.astype(np.uint8)).resize(self.img_size, Image.NEAREST)
         label = np.array(label, dtype=np.int64)
         
+        # Handle invalid class indices: map anything >= num_classes to ignore_index (255)
+        # This handles resizing artifacts and boundary pixels
+        label[label >= self.num_classes] = 255
+        
         # Convert to tensors
         image = transforms.ToTensor()(image)
         label = torch.from_numpy(label)
