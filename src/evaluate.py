@@ -196,20 +196,22 @@ def main():
     parser.add_argument('--split', type=str, default='val',
                        choices=['train', 'val', 'test'])
     parser.add_argument('--batch_size', type=int, default=4)
+    parser.add_argument('--num_classes', type=int, default=12,
+                       help='Number of classes')
     args = parser.parse_args()
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     # Create dataset
     if args.dataset == 'toy':
-        dataset = ToySegmentationDataset(num_samples=20, num_classes=11, split=args.split)
+        dataset = ToySegmentationDataset(num_samples=20, num_classes=args.num_classes, split=args.split)
     else:
         dataset = CamVidDataset('data/CamVid', split=args.split)
     
     loader = create_dataloader(dataset, batch_size=args.batch_size, shuffle=False)
     
     # Evaluate
-    evaluator = SegNetEvaluator(args.model_path, num_classes=11, device=device)
+    evaluator = SegNetEvaluator(args.model_path, num_classes=args.num_classes, device=device)
     metrics = evaluator.evaluate(loader, class_names=CamVidDataset.CLASS_NAMES)
     
     # Save results

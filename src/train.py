@@ -255,7 +255,7 @@ def main():
                        help='SGD momentum')
     parser.add_argument('--weight_decay', type=float, default=5e-4,
                        help='Weight decay')
-    parser.add_argument('--dataset_path', type=str, default='SegNet-Tutorial/CamVid/',
+    parser.add_argument('--dataset_path', type=str, default='data/CamVid/',
                        help='Path to dataset')
     parser.add_argument('--checkpoint_dir', type=str, default='models/custom_segnet/',
                        help='Checkpoint directory')
@@ -265,8 +265,8 @@ def main():
                        help='Results directory')
     parser.add_argument('--device', type=str, default='cuda' if torch.cuda.is_available() else 'cpu',
                        help='Device to use')
-    parser.add_argument('--num_classes', type=int, default=11,
-                       help='Number of classes')
+    parser.add_argument('--num_classes', type=int, default=12,
+                       help='Number of classes (0-11 for CamVid)')
     parser.add_argument('--early_stopping_patience', type=int, default=10,
                        help='Early stopping patience')
     parser.add_argument('--save_freq', type=int, default=10,

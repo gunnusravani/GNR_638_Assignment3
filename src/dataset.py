@@ -58,13 +58,13 @@ class CamVidDataset(Dataset):
             └── labels/
     """
     
-    # CamVid class names and colors
+    # CamVid class names and colors (12 classes: 0-11)
     CLASS_NAMES = [
         'road', 'sidewalk', 'tree', 'car', 'fence', 'pedestrian',
-        'building', 'pole', 'sky', 'bicycle', 'sign'
+        'building', 'pole', 'sky', 'bicycle', 'sign', 'void'
     ]
     
-    # Colors for each class (RGB)
+    # Colors for each class (RGB) - 12 classes
     CLASS_COLORS = {
         0: [128, 64, 128],      # road
         1: [244, 35, 232],      # sidewalk
@@ -77,6 +77,7 @@ class CamVidDataset(Dataset):
         8: [70, 130, 180],      # sky
         9: [119, 11, 32],       # bicycle
         10: [0, 0, 142],        # sign
+        11: [0, 0, 0],          # void/unlabeled
     }
     
     def __init__(self, root_dir, split='train', transform=None, img_size=(360, 480)):
