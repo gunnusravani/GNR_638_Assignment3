@@ -110,3 +110,4 @@ tb_logs/
 *.orig
 .mypy.ini
 setup.cfg
+SegNet-Tutorial/

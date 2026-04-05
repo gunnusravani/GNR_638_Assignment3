@@ -139,26 +139,21 @@ class CamVidDataset(Dataset):
         # Load image
         image = Image.open(img_path).convert('RGB')
         
-        # Load label (convert RGB label image to class index)
-        # CamVid label filenames match image names (in separate annot directory)
+        # Load label using grayscale indexed encoding (official SegNet approach)
+        # Label pixel value = class index (0-10)
         label_path = os.path.join(self.label_dir, img_name)
         
         if os.path.exists(label_path):
-            label_img = Image.open(label_path).convert('RGB')
-            label = self._rgb_to_class(label_img)
+            label_img = Image.open(label_path).convert('L')  # Grayscale!
+            label = np.array(label_img, dtype=np.int64)
         else:
             # If label doesn't exist, create dummy label
-            label = Image.new('L', image.size, 255)
-            label = np.array(label)
+            label = np.full(image.size[::-1], 255, dtype=np.int64)
         
         # Resize
         image = image.resize(self.img_size, Image.BILINEAR)
-        if isinstance(label, Image.Image):
-            label = label.resize(self.img_size, Image.NEAREST)
-            label = np.array(label)
-        else:
-            label = Image.fromarray(label.astype(np.uint8)).resize(self.img_size, Image.NEAREST)
-            label = np.array(label)
+        label = Image.fromarray(label.astype(np.uint8)).resize(self.img_size, Image.NEAREST)
+        label = np.array(label, dtype=np.int64)
         
         # Convert to tensors
         image = transforms.ToTensor()(image)
@@ -170,31 +165,6 @@ class CamVidDataset(Dataset):
         
         return image, label.long()
     
-    @staticmethod
-    def _rgb_to_class(label_img):
-        """Convert RGB label image to class indices with better tolerance for compression"""
-        label_array = np.array(label_img, dtype=np.float32)
-        h, w = label_array.shape[:2]
-        
-        # Reshape to (H*W, 3)
-        pixels = label_array.reshape(-1, 3)
-        
-        # Get color list
-        colors_list = np.array([CamVidDataset.CLASS_COLORS[i] for i in range(11)], 
-                              dtype=np.float32)
-        
-        # Use scipy for efficient distance computation
-        from scipy.spatial.distance import cdist
-        
-        # Compute Euclidean distances: (H*W, 11)
-        distances = cdist(pixels, colors_list, metric='euclidean')
-        
-        # Find nearest class for each pixel
-        class_map = np.argmin(distances, axis=1).astype(np.uint8)
-        
-        return class_map.reshape(h, w)
-
-
 class SegmentationTransform:
     """Augmentation transforms for training"""
     
